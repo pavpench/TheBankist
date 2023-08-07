@@ -90,6 +90,12 @@ const displayMovements = function (movements) {
 
 displayMovements(account1.movements);
 
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  console.log(balance);
+  labelBalance.textContent = `${balance} EUR`;
+};
+
 // const user = "Steven Thomas Williams"; //stw
 
 const createUsernames = function (accs) {
@@ -103,4 +109,5 @@ const createUsernames = function (accs) {
 };
 
 createUsernames(accounts);
+calcDisplayBalance(account1.movements);
 console.log(accounts);
