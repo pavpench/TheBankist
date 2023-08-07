@@ -148,6 +148,7 @@ const updateUI = function (account) {
 //Login handler
 let currentAccount;
 
+//Login based on userName and pin
 btnLogin.addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -174,6 +175,7 @@ btnLogin.addEventListener("click", function (e) {
   }
 });
 
+//Transfer from currentAccount --> receiverAccount
 btnTransfer.addEventListener("click", function (e) {
   e.preventDefault();
   const amount = Number(inputTransferAmount.value);
