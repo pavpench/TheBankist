@@ -88,9 +88,9 @@ const displayMovements = function (movements) {
   });
 };
 
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
+const calcDisplayBalance = function (account) {
+  account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${account.balance} EUR`;
 };
 
 const calcDisplaySummary = function (account) {
@@ -125,14 +125,24 @@ const calcDisplaySummary = function (account) {
 // const user = "Steven Thomas Williams"; //stw
 // to be reworked as a method for user
 
-const createUsernames = function (accs) {
-  accs.forEach(function (acc) {
+const createUsernames = function (accounts) {
+  accounts.forEach(function (acc) {
     acc.userName = acc.owner
       .toLowerCase()
       .split(" ")
       .map((name) => name[0])
       .join("");
   });
+};
+
+const updateUI = function (account) {
+  //Display Movements
+  displayMovements(account.movements);
+  //Display balance
+  calcDisplayBalance(account);
+
+  //Display summary
+  calcDisplaySummary(account);
 };
 
 //Login handler
@@ -157,16 +167,35 @@ btnLogin.addEventListener("click", function (e) {
 
     //Lose focus from input field
     inputLoginPin.blur();
-
-    //Display Movements
-    displayMovements(currentAccount.movements);
-    //Display balance
-    calcDisplayBalance(currentAccount.movements);
-
-    //Display summary
-    calcDisplaySummary(currentAccount);
+    // Update UI
+    updateUI(currentAccount);
   } else {
     console.log(`Invalid userName or password`);
+  }
+});
+
+btnTransfer.addEventListener("click", function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    (acc) => acc.userName === inputTransferTo.value
+  );
+
+  inputTransferAmount.value = inputTransferTo.value = "";
+
+  if (
+    amount > 0 &&
+    receiverAccount &&
+    currentAccount.balance >= amount &&
+    receiverAccount?.userName !== currentAccount.userName
+  ) {
+    //Doing transfer
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+
+    //Update UI
+    updateUI(currentAccount);
+    console.log(`transfer valid`);
   }
 });
 
