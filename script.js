@@ -229,7 +229,7 @@ btnClose.addEventListener("click", function (e) {
 createUsernames(accounts);
 console.log(accounts);
 
-//Request loan with coverage at least 10% of highest deposit
+//Request loan with coverage at least 10% of  deposit
 btnLoan.addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -245,7 +245,7 @@ btnLoan.addEventListener("click", function (e) {
     updateUI(currentAccount);
   } else {
     alert(
-      "Amount is too high! Your loan has to be covered at least for 10% of your biggest deposit"
+      "Amount is too high! Your loan has to be covered at least for 10% of a deposit"
     );
   }
 });
