@@ -229,6 +229,7 @@ btnClose.addEventListener("click", function (e) {
 createUsernames(accounts);
 console.log(accounts);
 
+//Request loan with coverage at least 10% of highest deposit
 btnLoan.addEventListener("click", function (e) {
   e.preventDefault();
 
