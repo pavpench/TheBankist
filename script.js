@@ -228,3 +228,23 @@ btnClose.addEventListener("click", function (e) {
 
 createUsernames(accounts);
 console.log(accounts);
+
+btnLoan.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (
+    amount > 0 &&
+    currentAccount.movements.some((move) => move >= amount * 0.1)
+  ) {
+    //Add movement
+    currentAccount.movements.push(amount);
+    //Update UI
+    updateUI(currentAccount);
+  } else {
+    alert(
+      "Amount is too high! Your loan has to be covered at least for 10% of your biggest deposit"
+    );
+  }
+});
