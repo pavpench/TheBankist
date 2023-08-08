@@ -72,11 +72,12 @@ const currencies = new Map([
 ]);
 
 /////////////////////////////////////////////////
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = "";
-
-  movements.forEach((movement, index) => {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  movs.forEach((movement, index) => {
     const type = movement > 0 ? "deposit" : "withdrawal";
+    //movements.slice() to create a copy of the variable and not mutate original one
 
     const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${
@@ -248,4 +249,11 @@ btnLoan.addEventListener("click", function (e) {
       "Amount is too high! Your loan has to be covered at least for 10% of a deposit"
     );
   }
+});
+
+let sorted = false;
+btnSort.addEventListener("click", function (e) {
+  e.preventDefault();
+  sorted = !sorted;
+  displayMovements(currentAccount.movements, sorted);
 });
