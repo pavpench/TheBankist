@@ -83,7 +83,7 @@ const displayMovements = function (movements, sort = false) {
     <div class="movements__type movements__type--${type}">${
       index + 1
     } ${type} </div>
-    <div class="movements__value">${movement}€</div>
+    <div class="movements__value">${movement.toFixed(2)}€</div>
                   </div>`;
     containerMovements.insertAdjacentHTML("afterbegin", html);
   });
@@ -91,7 +91,7 @@ const displayMovements = function (movements, sort = false) {
 
 const calcDisplayBalance = function (account) {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${account.balance} EUR`;
+  labelBalance.textContent = `${account.balance.toFixed(2)} EUR`;
 };
 
 const calcDisplaySummary = function (account) {
@@ -101,13 +101,13 @@ const calcDisplaySummary = function (account) {
   const incomes = movements
     .filter((mov) => mov > 0)
     .reduce((acc, move) => acc + move, 0);
-  labelSumIn.textContent = `${incomes}€`;
+  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
 
   //Calculation and display withdraws
   const outcomes = movements
     .filter((mov) => mov < 0)
     .reduce((acc, move) => acc + move, 0);
-  labelSumOut.textContent = `${Math.abs(outcomes)}€`;
+  labelSumOut.textContent = `${Math.abs(outcomes).toFixed(2)}€`;
 
   //Calculating interest based on deposit and rendering
   //Extra rule added for interest above 1 euro
@@ -119,7 +119,7 @@ const calcDisplaySummary = function (account) {
       return int >= 1;
     })
     .reduce((acc, interest) => acc + interest, 0);
-  labelSumInterest.textContent = `${interest}€`;
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 // Create a short version of the user name based on regular name
@@ -234,7 +234,7 @@ console.log(accounts);
 btnLoan.addEventListener("click", function (e) {
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.floor(inputLoanAmount.value);
 
   if (
     amount > 0 &&
