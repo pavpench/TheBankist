@@ -370,6 +370,10 @@ btnTransfer.addEventListener("click", function (e) {
     //Update UI
     updateUI(currentAccount);
     console.log(`transfer valid`);
+
+    //Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -430,6 +434,9 @@ btnLoan.addEventListener("click", function (e) {
       "Amount is too high! Your loan has to be covered at least for 10% of a deposit"
     );
   }
+  //Reset timer
+  clearInterval(timer);
+  timer = startLogOutTimer();
 });
 
 /**
