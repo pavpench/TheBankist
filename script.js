@@ -201,5 +201,30 @@ btnTransfer.addEventListener("click", function (e) {
   }
 });
 
+btnClose.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.userName &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.userName === inputCloseUsername.value
+      //accounts.indexOf(inputCloseUsername.value)
+    );
+    //Delete account
+    accounts.splice(index, 1);
+    //Hide UI
+    containerApp.style.opacity = 0;
+    console.log(
+      `The account has been removed from the current instance: `,
+      accounts
+    );
+  } else {
+    console.log("You don't own this account");
+  }
+  inputCloseUsername.value = inputClosePin.value = "";
+});
+
 createUsernames(accounts);
 console.log(accounts);
