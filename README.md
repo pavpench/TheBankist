@@ -10,13 +10,13 @@ login fields.
 Amount can be added to current balance by adding an ammount not higher than 10% of highest deposit. (Currently known issue, the requested amount increases after each request)
 
 ### Test login accounts
-UserName : `js`; 
-Password : `1111`; 
-UserName : `jd`; 
-Password : `2222`; 
-UserName : `stw`; 
-Password : `3333`; 
-UserName : `ss`; 
+UserName : `js`;  
+Password : `1111`;  
+UserName : `jd`;  
+Password : `2222`;  
+UserName : `stw`;  
+Password : `3333`;  
+UserName : `ss`;  
 Password : `4444`; 
 
 #### Main goals of project
