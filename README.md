@@ -10,14 +10,14 @@ login fields.
 Amount can be added to current balance by adding an ammount not higher than 10% of highest deposit. (Currently known issue, the requested amount increases after each request)
 
 ### Test login accounts
-UserName : `js`; n\
-Password : `1111`; n\
-UserName : `jd`; n\
-Password : `2222`; n\
-UserName : `stw`; n\
-Password : `3333`; n\
-UserName : `ss`; n\
-Password : `4444`; n\
+UserName : `js`; 
+Password : `1111`; 
+UserName : `jd`; 
+Password : `2222`; 
+UserName : `stw`; 
+Password : `3333`; 
+UserName : `ss`; 
+Password : `4444`; 
 
 #### Main goals of project
 To practice: javascript methods, sanitization and manipulation of data, UI interactivity, Localized Currency, Date and Time, Working with idle timers and more.
