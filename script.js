@@ -75,6 +75,8 @@ const account4 = {
     "2023-06-25T18:49:59.371Z",
     "2023-09-11T12:01:20.894Z",
   ],
+  currency: "EUR",
+  locale: "pt-PT",
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -137,10 +139,21 @@ const formatMovementDate = function (date, locale) {
     return new Intl.DateTimeFormat(locale).format(date);
   }
 };
-/////////////////////////////////////////////////
+
+/**
+ * Currency formating
+ */
+const formatCurrency = function (value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+  }).format(value);
+};
+/** */
 const displayMovements = function (account, sort = false) {
   containerMovements.innerHTML = "";
 
+  //account.movements.slice() to create a shallow copy of the variable and not mutate original one
   const movs =
     (sort && account.movements?.slice().sort((a, b) => a - b)) ||
     account.movements;
@@ -150,40 +163,55 @@ const displayMovements = function (account, sort = false) {
       const type = movement > 0 ? "deposit" : "withdrawal";
       let date = new Date(account.movementsDates[index]);
       let displayDate = formatMovementDate(date, account.locale);
-
-      //movements.slice() to create a copy of the variable and not mutate original one
-
+      const formattedMovement = formatCurrency(
+        movement,
+        account.locale,
+        account.currency
+      );
       const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${
         index + 1
       } ${type} </div>
     <div class="movements__date">${displayDate}</div>
     
-    <div class="movements__value">${movement.toFixed(2)}€</div>
+    <div class="movements__value">${formattedMovement}</div>
                   </div>`;
       containerMovements.insertAdjacentHTML("afterbegin", html);
     });
 };
-
+/** */
 const calcDisplayBalance = function (account) {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${account.balance.toFixed(2)} €`;
+  labelBalance.textContent = formatCurrency(
+    account.balance,
+    account.locale,
+    account.currency
+  );
 };
-
+/** */
 const calcDisplaySummary = function (account) {
   let interestRate = account.interestRate;
   let movements = account.movements;
+
   //Calculation of deposits
   const incomes = movements
     .filter((mov) => mov > 0)
     .reduce((acc, move) => acc + move, 0);
-  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
+  labelSumIn.textContent = formatCurrency(
+    incomes,
+    account.locale,
+    account.currency
+  );
 
   //Calculation and display withdraws
   const outcomes = movements
     .filter((mov) => mov < 0)
     .reduce((acc, move) => acc + move, 0);
-  labelSumOut.textContent = `${Math.abs(outcomes).toFixed(2)}€`;
+  labelSumOut.textContent = formatCurrency(
+    outcomes,
+    account.locale,
+    account.currency
+  );
 
   //Calculating interest based on deposit and rendering
   //Extra rule added for interest above 1 euro
@@ -195,15 +223,48 @@ const calcDisplaySummary = function (account) {
       return int >= 1;
     })
     .reduce((acc, interest) => acc + interest, 0);
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatCurrency(
+    interest,
+    account.locale,
+    account.currency
+  );
+};
+
+/**
+ * Logout timer
+ */
+const startLogOutTimer = function () {
+  //set time to 5 minutes
+  let time = 120;
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+    //In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`;
+
+    //Then 0 seconds, stop timer and logout user
+    if (time === 0) {
+      clearInterval(timer);
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent =
+        "You were logged out, please log in again to get started";
+    }
+    //Decrease 1s
+    time--;
+  };
+
+  //call the timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  return timer;
 };
 
 /** 
- *
   Create a short version of the user name based on regular name
   const user = "Steven Thomas Williams"; //stw
   possible rework as a method for user
-  */
+ */
 
 const createUsernames = function (accounts) {
   accounts.forEach(function (acc) {
@@ -228,8 +289,8 @@ const updateUI = function (account) {
   calcDisplaySummary(account);
 };
 
-//Login handler
-let currentAccount;
+//Variables
+let currentAccount, timer;
 
 //Fake always logged in
 // currentAccount = account1;
@@ -247,7 +308,7 @@ btnLogin.addEventListener("click", function (e) {
   );
 
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
-    console.log("Login");
+    console.log("Login successful");
     //Display UI and message
     labelWelcome.textContent = `Welcome back ${
       currentAccount.owner.split(" ")[0]
@@ -271,7 +332,10 @@ btnLogin.addEventListener("click", function (e) {
 
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = "";
+    //Start logout timer
+    if (timer) clearInterval(timer);
 
+    timer = startLogOutTimer();
     //Lose focus from input field
     inputLoginPin.blur();
     // Update UI
@@ -309,6 +373,9 @@ btnTransfer.addEventListener("click", function (e) {
   }
 });
 
+/**
+ *Close/Delete account button
+ */
 btnClose.addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -347,13 +414,17 @@ btnLoan.addEventListener("click", function (e) {
     amount > 0 &&
     currentAccount.movements.some((move) => move >= amount * 0.1)
   ) {
-    //Add movement
-    currentAccount.movements.push(amount);
-    //Add loan date
-    currentAccount.movementsDates.push(new Date().toISOString());
+    inputLoanAmount.value = "";
 
-    //Update UI
-    updateUI(currentAccount);
+    setTimeout(function () {
+      //Add movement
+      currentAccount.movements.push(amount);
+      //Add loan date
+      currentAccount.movementsDates.push(new Date().toISOString());
+
+      //Update UI
+      updateUI(currentAccount);
+    }, 3000);
   } else {
     alert(
       "Amount is too high! Your loan has to be covered at least for 10% of a deposit"
@@ -361,20 +432,13 @@ btnLoan.addEventListener("click", function (e) {
   }
 });
 
+/**
+ * Movements sort
+ */
+
 let sorted = false;
 btnSort.addEventListener("click", function (e) {
   e.preventDefault();
   sorted = !sorted;
   displayMovements(currentAccount, sorted);
 });
-
-// Experimenting API
-const now = new Date();
-const options = {
-  hour: "numeric",
-  minute: "numeric",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  weekday: "long",
-};
