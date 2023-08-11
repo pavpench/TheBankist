@@ -82,13 +82,45 @@ const displayMovements = function (movements) {
     <div class="movements__type movements__type--${type}">${
       index + 1
     } ${type} </div>
-    <div class="movements__value">${movement}</div>
+    <div class="movements__value">${movement}€</div>
                   </div>`;
     containerMovements.insertAdjacentHTML("afterbegin", html);
   });
 };
 
 displayMovements(account1.movements);
+
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+
+//TO be reworked
+
+const calcDisplaySummary = function (movements) {
+  //Calculation of deposits
+  const incomes = movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, move) => acc + move);
+  labelSumIn.textContent = `${incomes}€`;
+
+  //Calculation and display withdraws
+  const outcomes = movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, move) => acc + move);
+  labelSumOut.textContent = `${Math.abs(outcomes)}€`;
+
+  //Calculating interest based on deposit and rendering
+  //Extra rule added for interest above 1 euro
+  const interest = movements
+    .filter((move) => move > 0)
+    .map((deposit) => deposit * 0.012)
+    .filter((int, i, arr) => {
+      return int >= 1;
+    })
+    .reduce((acc, interest) => acc + interest);
+  labelSumInterest.textContent = `${interest}€`;
+};
 
 // const user = "Steven Thomas Williams"; //stw
 
@@ -103,4 +135,6 @@ const createUsernames = function (accs) {
 };
 
 createUsernames(accounts);
+calcDisplayBalance(account1.movements);
+calcDisplaySummary(account1.movements);
 console.log(accounts);
