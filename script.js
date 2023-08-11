@@ -378,6 +378,3 @@ const options = {
   year: "numeric",
   weekday: "long",
 };
-
-const locale = navigator.language;
-labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(now);
