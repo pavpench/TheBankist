@@ -42,12 +42,22 @@ const account2 = {
   currency: "USD",
   locale: "en-US",
 };
-
+//movements : 200, -200, 340, -300, -20, 50, 400, -460
 const account3 = {
   owner: "Steven Thomas Williams",
-  movements: [200, -200, 340, -300, -20, 50, 400, -460],
+  movements: [],
   interestRate: 0.7,
   pin: 3333,
+  movementsDates: [
+    "2022-11-01T13:15:33.035Z",
+    "2022-11-30T09:48:16.867Z",
+    "2022-12-25T06:04:23.907Z",
+    "2023-01-25T14:18:46.235Z",
+    "2023-02-05T16:33:06.386Z",
+    "2023-04-10T14:43:26.374Z",
+    "2023-06-25T18:49:59.371Z",
+    "2023-09-11T12:01:20.894Z",
+  ],
 };
 
 const account4 = {
@@ -55,6 +65,16 @@ const account4 = {
   movements: [430, 1000, 700, 50, 90],
   interestRate: 1,
   pin: 4444,
+  movementsDates: [
+    "2022-11-01T13:15:33.035Z",
+    "2022-11-30T09:48:16.867Z",
+    "2022-12-25T06:04:23.907Z",
+    "2023-01-25T14:18:46.235Z",
+    "2023-02-05T16:33:06.386Z",
+    "2023-04-10T14:43:26.374Z",
+    "2023-06-25T18:49:59.371Z",
+    "2023-09-11T12:01:20.894Z",
+  ],
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -95,7 +115,7 @@ const currencies = new Map([
   ["GBP", "Pound sterling"],
 ]);
 
-const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) => {
     return Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
   };
@@ -109,38 +129,40 @@ const formatMovementDate = function (date) {
   if (daysPassed <= 7) {
     return `${daysPassed} days ago`;
   } else {
-    const now = new Date();
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    // const now = new Date();
+    // const day = `${date.getDate()}`.padStart(2, 0);
+    // const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    // const year = date.getFullYear();
+    // return `${day}/${month}/${year}`;
+    return new Intl.DateTimeFormat(locale).format(date);
   }
 };
 /////////////////////////////////////////////////
 const displayMovements = function (account, sort = false) {
   containerMovements.innerHTML = "";
 
-  const movs = sort
-    ? account.movements.slice().sort((a, b) => a - b)
-    : account.movements;
+  const movs =
+    (sort && account.movements?.slice().sort((a, b) => a - b)) ||
+    account.movements;
 
-  movs.forEach((movement, index) => {
-    const type = movement > 0 ? "deposit" : "withdrawal";
-    let date = new Date(account.movementsDates[index]);
-    let displayDate = formatMovementDate(date);
+  !!movs.length &&
+    movs.forEach((movement, index) => {
+      const type = movement > 0 ? "deposit" : "withdrawal";
+      let date = new Date(account.movementsDates[index]);
+      let displayDate = formatMovementDate(date, account.locale);
 
-    //movements.slice() to create a copy of the variable and not mutate original one
+      //movements.slice() to create a copy of the variable and not mutate original one
 
-    const html = `<div class="movements__row">
+      const html = `<div class="movements__row">
     <div class="movements__type movements__type--${type}">${
-      index + 1
-    } ${type} </div>
+        index + 1
+      } ${type} </div>
     <div class="movements__date">${displayDate}</div>
     
     <div class="movements__value">${movement.toFixed(2)}€</div>
                   </div>`;
-    containerMovements.insertAdjacentHTML("afterbegin", html);
-  });
+      containerMovements.insertAdjacentHTML("afterbegin", html);
+    });
 };
 
 const calcDisplayBalance = function (account) {
@@ -176,9 +198,12 @@ const calcDisplaySummary = function (account) {
   labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
-// Create a short version of the user name based on regular name
-// const user = "Steven Thomas Williams"; //stw
-// to be reworked as a method for user
+/** 
+ *
+  Create a short version of the user name based on regular name
+  const user = "Steven Thomas Williams"; //stw
+  possible rework as a method for user
+  */
 
 const createUsernames = function (accounts) {
   accounts.forEach(function (acc) {
@@ -190,6 +215,9 @@ const createUsernames = function (accounts) {
   });
 };
 
+/**
+ * User Interface Update upon difference situations
+ */
 const updateUI = function (account) {
   //Display Movements
   displayMovements(account);
@@ -204,13 +232,13 @@ const updateUI = function (account) {
 let currentAccount;
 
 //Fake always logged in
-currentAccount = account1;
-updateUI(currentAccount);
-containerApp.style.opacity = 100;
+// currentAccount = account1;
+// updateUI(currentAccount);
+// containerApp.style.opacity = 100;
 
-// day/month/year
-
-//Login based on userName and pin
+/**
+ *Login based on userName and pin
+ */
 btnLogin.addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -227,12 +255,19 @@ btnLogin.addEventListener("click", function (e) {
     containerApp.style.opacity = 100;
 
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth() + 1}`.padStart(2, 0);
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, 0);
-    const min = `${now.getMinutes()}`.padStart(2, 0);
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+      weekday: "long",
+    };
+
+    const locale = currentAccount?.locale ?? navigator.language;
+    labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(
+      now
+    );
 
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = "";
@@ -332,3 +367,17 @@ btnSort.addEventListener("click", function (e) {
   sorted = !sorted;
   displayMovements(currentAccount, sorted);
 });
+
+// Experimenting API
+const now = new Date();
+const options = {
+  hour: "numeric",
+  minute: "numeric",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  weekday: "long",
+};
+
+const locale = navigator.language;
+labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(now);
