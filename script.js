@@ -88,41 +88,42 @@ const displayMovements = function (movements) {
   });
 };
 
-displayMovements(account1.movements);
-
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `${balance} EUR`;
 };
 
-//TO be reworked
-
-const calcDisplaySummary = function (movements) {
+const calcDisplaySummary = function (account) {
+  let interestRate = account.interestRate;
+  let movements = account.movements;
   //Calculation of deposits
   const incomes = movements
     .filter((mov) => mov > 0)
-    .reduce((acc, move) => acc + move);
+    .reduce((acc, move) => acc + move, 0);
   labelSumIn.textContent = `${incomes}€`;
 
   //Calculation and display withdraws
   const outcomes = movements
     .filter((mov) => mov < 0)
-    .reduce((acc, move) => acc + move);
+    .reduce((acc, move) => acc + move, 0);
   labelSumOut.textContent = `${Math.abs(outcomes)}€`;
 
   //Calculating interest based on deposit and rendering
   //Extra rule added for interest above 1 euro
+
   const interest = movements
     .filter((move) => move > 0)
-    .map((deposit) => deposit * 0.012)
+    .map((deposit) => (deposit * interestRate) / 100)
     .filter((int, i, arr) => {
       return int >= 1;
     })
-    .reduce((acc, interest) => acc + interest);
+    .reduce((acc, interest) => acc + interest, 0);
   labelSumInterest.textContent = `${interest}€`;
 };
 
+// Create a short version of the user name based on regular name
 // const user = "Steven Thomas Williams"; //stw
+// to be reworked as a method for user
 
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
@@ -134,7 +135,40 @@ const createUsernames = function (accs) {
   });
 };
 
+//Login handler
+let currentAccount;
+
+btnLogin.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    (acc) => acc.userName === inputLoginUsername.value
+  );
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    console.log("Login");
+    //Display UI and message
+    labelWelcome.textContent = `Welcome back ${
+      currentAccount.owner.split(" ")[0]
+    }`;
+    containerApp.style.opacity = 100;
+    // Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = "";
+
+    //Lose focus from input field
+    inputLoginPin.blur();
+
+    //Display Movements
+    displayMovements(currentAccount.movements);
+    //Display balance
+    calcDisplayBalance(currentAccount.movements);
+
+    //Display summary
+    calcDisplaySummary(currentAccount);
+  } else {
+    console.log(`Invalid userName or password`);
+  }
+});
+
 createUsernames(accounts);
-calcDisplayBalance(account1.movements);
-calcDisplaySummary(account1.movements);
 console.log(accounts);
